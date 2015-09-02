@@ -1,6 +1,6 @@
 {
   "packages": [ {
-    "name":"Air Quality Egg v2 - %version%",
+    "name":"Air Quality Egg v2 - SO2/O3 %version%",
     "maintainer":"Wicked Device LLC",
     "websiteURL":"http://airqualityegg.com",
     "email":"support@wickeddevice.com",
@@ -13,15 +13,15 @@
       "architecture":"avr",
       "version":"%version%",
       "category":"Air Quality Egg",
-      "url":"http://update.wickeddevice.com/AQEV2-%version%-Arduino-%githash%.zip",
-      "archiveFileName":"AQEV2-%version%-Arduino-%githash%.zip",
+      "url":"http://update.wickeddevice.com/AQEV2-SO2O3-%version%-Arduino-%githash%.zip",
+      "archiveFileName":"AQEV2-SO2O3-%version%-Arduino-%githash%.zip",
       "checksum":"SHA-256:%sha256%",
       "size":"%filesize%",
       "help":{
         "online":"http://wickeddevice.com"
       },
       "boards":[ {
-          "name":"Air Quality Egg v2 NO2/CO"
+          "name":"Air Quality Egg v2 SO2/O3"
         }
       ]
     } ],
