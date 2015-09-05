@@ -1,7 +1,8 @@
-AQEV2FW
+AQEV2FW_SO2O3
 =======
 
 The baseline code for Air Quality Egg version 2 WildFire firmware for SO2/O3
+Upstream Repository: https://github.com/WickedDevice/AQEV2FW.git
 
 ##Dependencies
 * https://github.com/WickedDevice/WildFire-Arduino-Core
