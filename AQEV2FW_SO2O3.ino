@@ -974,6 +974,10 @@ void initializeHardware(void) {
       init_cc3000_ok = false;
     }
   } 
+
+  updateLCD("SO2 / O3", 0);
+  updateLCD("MODEL", 1);
+  SUCCESS_MESSAGE_DELAY();  
 }
 
 /****** CONFIGURATION SUPPORT FUNCTIONS ******/
@@ -2262,7 +2266,7 @@ void restore(char * arg) {
     eeprom_read_block(tmp, (const void *) EEPROM_BACKUP_PRIVATE_KEY, 32);
     eeprom_write_block(tmp, (void *) EEPROM_PRIVATE_KEY, 32);
   }
-  else if (strncmp("so2", arg, 6) == 0) {
+  else if (strncmp("so2", arg, 3) == 0) {
     if (!BIT_IS_CLEARED(backup_check, BACKUP_STATUS_SO2_CALIBRATION_BIT)) {
       Serial.println(F("Error: SO2 calibration must be backed up  "));
       Serial.println(F("       prior to executing a 'restore'."));
