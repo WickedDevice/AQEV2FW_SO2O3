@@ -4673,7 +4673,7 @@ void so2_convert_from_volts_to_ppb(float volts, float * converted_value, float *
   static float so2_zero_volts = 0.0f;
   static float so2_slope_ppb_per_volt = 0.0f;
   float temperature_coefficient_of_span = 0.0f;
-  float temperature_compensated_slope = 0.0f;
+  float temperatureresmpensated_slope = 0.0f;
   if(first_access){
     // SO2 has positive slope in circuit, more positive voltages correspond to higher levels of SO2
     so2_slope_ppb_per_volt = eeprom_read_float((const float *) EEPROM_SO2_CAL_SLOPE); 
@@ -4878,7 +4878,7 @@ boolean publishO3(){
     raw_value_string, 
     converted_value_string, 
     compensated_value_string);  
-  return mqttPublish(MQTT_TOPIC_PREFIX "co", scratch);
+  return mqttPublish(MQTT_TOPIC_PREFIX "o3", scratch);
 }
 
 void petWatchdog(void){
