@@ -1519,7 +1519,7 @@ void help_menu(char * arg) {
       Serial.println(F("      mac      - backs up the CC3000 MAC address"));
       Serial.println(F("      key      - backs up the 256-bit private key"));
       Serial.println(F("      so2      - backs up the SO2 calibration parameters"));
-      Serial.println(F("      co       - backs up the O3 calibration parameters"));
+      Serial.println(F("      o3       - backs up the O3 calibration parameters"));
       Serial.println(F("      temp     - backs up the Temperature calibration parameters"));
       Serial.println(F("      hum      - backs up the Humidity calibration parameters"));      
       Serial.println(F("      all      - does all of the above"));
@@ -3305,7 +3305,7 @@ void backup(char * arg) {
       eeprom_write_word((uint16_t *) EEPROM_BACKUP_CHECK, backup_check);
     }
   }
-  else if (strncmp("co", arg, 2) == 0) {
+  else if (strncmp("o3", arg, 2) == 0) {
     eeprom_read_block(tmp, (const void *) EEPROM_O3_SENSITIVITY, 4);
     eeprom_write_block(tmp, (void *) EEPROM_BACKUP_O3_SENSITIVITY, 4);
     eeprom_read_block(tmp, (const void *) EEPROM_O3_CAL_SLOPE, 4);
