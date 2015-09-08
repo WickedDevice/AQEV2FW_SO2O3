@@ -2254,7 +2254,7 @@ void restore(char * arg) {
     eeprom_write_block("update.wickeddevice.com", (void *) EEPROM_UPDATE_SERVER_NAME, 32);
   }  
   else if (strncmp("updatefile", arg, 10) == 0) {
-    eeprom_write_block("aqev2_so2_co", (void *) EEPROM_UPDATE_FILENAME, 32);
+    eeprom_write_block("aqev2_so2_o3", (void *) EEPROM_UPDATE_FILENAME, 32);
   }  
   else if (strncmp("key", arg, 3) == 0) {
     if (!BIT_IS_CLEARED(backup_check, BACKUP_STATUS_PRIVATE_KEY_BIT)) {
