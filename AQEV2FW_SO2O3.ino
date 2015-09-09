@@ -3566,7 +3566,6 @@ void safe_dtostrf(float value, signed char width, unsigned char precision, char 
     snprintf(format_string, 15, meta_format_string, precision); // format string should come out to something like "%.2f"
     snprintf(target_buffer, target_buffer_length - 1, format_string, value);
   }
-
     
 }
 
@@ -4731,13 +4730,13 @@ void so2_convert_from_volts_to_ppb(float volts, float * converted_value, float *
   float baseline_offset_voltage_at_temperature = baseline_offset_ppb_at_temperature / so2_slope_ppb_per_volt;
 
   float signal_scaling_factor_at_altitude = pressure_scale_factor();
-  
+
   *converted_value = (volts - so2_zero_volts) * so2_slope_ppb_per_volt;
   if(*converted_value <= 0.0f){
     *converted_value = 0.0f; 
   }
   
-  *temperature_compensated_value = (volts - so2_zero_volts - baseline_offset_voltage_at_temperature) * -1.0f * so2_slope_ppb_per_volt 
+  *temperature_compensated_value = (volts - so2_zero_volts - baseline_offset_voltage_at_temperature) * so2_slope_ppb_per_volt 
                                    / signal_scaling_factor_at_temperature 
                                    / signal_scaling_factor_at_altitude;
   if(*temperature_compensated_value <= 0.0f){
