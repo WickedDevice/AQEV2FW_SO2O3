@@ -4751,7 +4751,7 @@ boolean publishSO2(){
   float so2_moving_average = calculateAverage(&(sample_buffer[SO2_SAMPLE_BUFFER][0]), sample_buffer_depth);
   so2_convert_from_volts_to_ppb(so2_moving_average, &converted_value, &compensated_value);
   so2_ppb = compensated_value;  
-  safe_dtostrf(so2_moving_average, -8, 5, raw_value_string, 16);
+  safe_dtostrf(so2_moving_average, -8, 6, raw_value_string, 16);
   safe_dtostrf(converted_value, -4, 2, converted_value_string, 16);
   safe_dtostrf(compensated_value, -4, 2, compensated_value_string, 16); 
   trim_string(raw_value_string);
@@ -4858,7 +4858,7 @@ boolean publishO3(){
   float o3_moving_average = calculateAverage(&(sample_buffer[O3_SAMPLE_BUFFER][0]), sample_buffer_depth);
   o3_convert_from_volts_to_ppb(o3_moving_average, &converted_value, &compensated_value);
   o3_ppb = compensated_value;  
-  safe_dtostrf(o3_moving_average, -8, 5, raw_value_string, 16);
+  safe_dtostrf(o3_moving_average, -8, 6, raw_value_string, 16);
   safe_dtostrf(converted_value, -4, 2, converted_value_string, 16);
   safe_dtostrf(compensated_value, -4, 2, compensated_value_string, 16);    
   trim_string(raw_value_string);
@@ -4870,7 +4870,7 @@ boolean publishO3(){
     "\"raw-value\":%s,"
     "\"raw-units\":\"volt\","
     "\"converted-value\":%s,"
-    "\"converted-units\":\"ppm\","
+    "\"converted-units\":\"ppb\","
     "\"compensated-value\":%s,"
     "\"sensor-part-number\":\"3SP-O3-20-PCB\""
     "}",
