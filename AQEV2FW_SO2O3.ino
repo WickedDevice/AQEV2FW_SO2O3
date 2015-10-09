@@ -1035,7 +1035,7 @@ void initializeNewConfigSettings(void){
     memset(command_buf, 0, 32);  
     snprintf(command_buf, 31, "o3_sen %8.4f\r", sensitivity);
     configInject(command_buf);  
-    configInject("backup co\r");
+    configInject("backup o3\r");
   }
   
   if(in_config_mode){
@@ -1363,7 +1363,7 @@ void help_menu(char * arg) {
       Serial.println(F("                   performs 'restore updatefile'"));         
       Serial.println(F("                   performs 'restore key'"));
       Serial.println(F("                   performs 'restore so2'"));
-      Serial.println(F("                   performs 'restore co'"));          
+      Serial.println(F("                   performs 'restore o3'"));          
       Serial.println(F("                   clears the SSID from memory"));
       Serial.println(F("                   clears the Network Password from memory"));
       Serial.println(F("      mac        - retrieves the mac address from BACKUP"));
@@ -2190,7 +2190,7 @@ void restore(char * arg) {
     configInject("restore updatefile\r");    
     configInject("restore key\r");
     configInject("restore so2\r");
-    configInject("restore co\r");
+    configInject("restore o3\r");
     configInject("restore mac\r");
 
     eeprom_write_block(blank, (void *) EEPROM_SSID, 32); // clear the SSID
@@ -3341,7 +3341,7 @@ void backup(char * arg) {
     configInject("backup mqttpwd\r");
     configInject("backup key\r");
     configInject("backup so2\r");
-    configInject("backup co\r");
+    configInject("backup o3\r");
     configInject("backup temp\r");
     configInject("backup hum\r");    
     configInject("backup mac\r");
