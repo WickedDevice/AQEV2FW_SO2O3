@@ -2280,7 +2280,7 @@ void restore(char * arg) {
     eeprom_read_block(tmp, (const void *) EEPROM_BACKUP_SO2_CAL_OFFSET, 4);
     eeprom_write_block(tmp, (void *) EEPROM_SO2_CAL_OFFSET, 4);
   }
-  else if (strncmp("co", arg, 5) == 0) {
+  else if (strncmp("o3", arg, 2) == 0) {
     if (!BIT_IS_CLEARED(backup_check, BACKUP_STATUS_O3_CALIBRATION_BIT)) {
       Serial.println(F("Error: O3 calibration must be backed up  "));
       Serial.println(F("       prior to executing a 'restore'."));
