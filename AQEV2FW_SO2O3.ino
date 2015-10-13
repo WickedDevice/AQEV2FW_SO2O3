@@ -1,4 +1,4 @@
-g#include <Wire.h>
+#include <Wire.h>
 #include <SPI.h>
 #include <WildFire.h>
 #include <WildFire_CC3000.h>
