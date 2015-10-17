@@ -1439,10 +1439,14 @@ void help_menu(char * arg) {
     else if (strncmp("download", arg, 8) == 0) {
       Serial.println(F("download <filename>"));
       Serial.println(F("   prints the contents of the named file to the console."));
+      Serial.println(F("download <YYMMDDHH> <YYMMDDHH>"));      
+      Serial.println(F("   prints the contents of files from start to end dates inclusive."));
     }   
     else if (strncmp("delete", arg, 6) == 0) {
       Serial.println(F("delete <filename>"));
       Serial.println(F("   deletes the named file from the SD card."));
+      Serial.println(F("delete <YYMMDDHH> <YYMMDDHH>"));      
+      Serial.println(F("   deletes the files from start to end dates inclusive."));
     }       
     else if (strncmp("force", arg, 5) == 0) {
       Serial.println(F("force <param>"));
@@ -3038,37 +3042,127 @@ void list_command(char * arg){
   }  
 }
 
-void download_command(char * arg){
-  if(arg != NULL && init_sdcard_ok){
-    File dataFile = SD.open(arg, FILE_READ);
+void download_one_file(char * filename){
+  if(filename != NULL && init_sdcard_ok){    
+    File dataFile = SD.open(filename, FILE_READ);
+    char last_char_read = NULL;
     if (dataFile) {
       while (dataFile.available()) {
-        Serial.write(dataFile.read());
+        last_char_read = dataFile.read();
+        Serial.write(last_char_read);
       }
       dataFile.close();      
     }
-    else {
-      Serial.print("Error: Failed to open file named \"");
-      Serial.print(arg);
-      Serial.print(F("\""));
-    }    
-  }
-  Serial.println();  
+    //else {
+    //  Serial.print("Error: Failed to open file named \"");
+    //  Serial.print(filename);
+    //  Serial.print(F("\""));
+    //}    
+    if(last_char_read != '\n'){
+      Serial.println();        
+    }
+  }  
 }
 
-void delete_command(char * arg){
-  if(arg != NULL && init_sdcard_ok){
-    if (SD.remove(arg)) {
-      Serial.print("Info: Removed file named \"");
-      Serial.print(arg);
-      Serial.println(F("\""));
+void crack_datetime_filename(char * filename, uint8_t target_array[4]){
+  char temp_str[3] = {0, 0, 0};   
+  for(uint8_t ii = 0; ii < 4; ii++){
+    strncpy(temp_str, &(filename[ii * 2]), 2);  
+    target_array[ii] = atoi(temp_str);
+  }
+
+  target_array[0] += 30; // YY is offset from 2000, but epoch time is offset from 1970
+}
+
+void make_datetime_filename(uint8_t src_array[4], char * target_filename, uint8_t max_len){
+  snprintf(target_filename, max_len, "%02d%02d%02d%02d.csv", 
+    src_array[0] - 30, // YY is offset from 2000, but epoch time is offset from 1970
+    src_array[1],
+    src_array[2],
+    src_array[3]);  
+}
+
+void advanceByOneHour(uint8_t src_array[4]){
+
+  tmElements_t tm;
+  tm.Year   = src_array[0];
+  tm.Month  = src_array[1];
+  tm.Day    = src_array[2];
+  tm.Wday   = 0;
+  tm.Hour   = src_array[3];
+  tm.Minute = 0;
+  tm.Second = 0;
+  
+  time_t seconds_since_epoch = makeTime(tm);;  
+  seconds_since_epoch += SECS_PER_HOUR; 
+  breakTime(seconds_since_epoch, tm);
+
+  src_array[0] = tm.Year;
+  src_array[1] = tm.Month;
+  src_array[2] = tm.Day;
+  src_array[3] = tm.Hour;
+}
+
+// does the behavior of executing the one_file_function on a single file
+// or on each file in a range of files 
+void fileop_command_delegate(char * arg, void (*one_file_function)(char *)){
+  char * first_arg = NULL;
+  char * second_arg = NULL;
+  
+  trim_string(arg);
+  
+  first_arg = strtok(arg, " ");
+  second_arg = strtok(NULL, " ");
+
+  if(second_arg == NULL){   
+    one_file_function(first_arg);
     }
     else {
-      Serial.print("Error: Failed to delete file named \"");
-      Serial.print(arg);
+    uint8_t cur_date[4] = {0,0,0,0};
+    uint8_t end_date[4] = {0,0,0,0};
+    crack_datetime_filename(first_arg, cur_date);
+    crack_datetime_filename(second_arg, end_date);
+
+    // starting from cur_date, download the file with that name
+    char cur_date_filename[16] = {0};
+    boolean finished_last_file = false;
+    while(!finished_last_file){
+      memset(cur_date_filename, 0, 16);
+      make_datetime_filename(cur_date, cur_date_filename, 15);
+      one_file_function(cur_date_filename);
+      if(memcmp(cur_date, end_date, 4) == 0){      
+        finished_last_file = true;
+    }    
+      else{
+        advanceByOneHour(cur_date);      
+  }
+    }     
+  }  
+}
+
+void download_command(char * arg){
+  fileop_command_delegate(arg, download_one_file);
+  Serial.println("Info: Done downloading.");
+}
+
+void delete_one_file(char * filename){
+  if(filename != NULL && init_sdcard_ok){   
+    if (SD.remove(filename)) {
+      Serial.print("Info: Removed file named \"");
+      Serial.print(filename);
       Serial.println(F("\""));
+    }
+//    else {
+//      Serial.print("Error: Failed to delete file named \"");
+//      Serial.print(filename);
+//      Serial.println(F("\""));
+//    }    
     }    
   }
+
+void delete_command(char * arg){
+  fileop_command_delegate(arg, delete_one_file);
+  Serial.println("Info: Done deleting.");
 }
 
 void set_mqtt_password(char * arg) {
@@ -3728,7 +3822,7 @@ void ltrim_string(char * str){
   uint16_t num_leading_spaces = 0;
   uint16_t len = strlen(str);
   for(uint16_t ii = 0; ii < len; ii++){
-    if(str[ii] != ' '){
+    if(!isspace(str[ii])){
       break;      
     }     
     num_leading_spaces++;
@@ -3744,17 +3838,19 @@ void ltrim_string(char * str){
 }
 
 void rtrim_string(char * str){
-  char * pstr = str;
-  uint16_t space_index = 0;
-
-  // find the first non-space character
-  while(*pstr == ' '){
-    pstr++;
+  // starting at the last character in the string
+  // overwrite space characters with null characteres
+  // until you reach a non-space character
+  // or you overwrite the entire string
+  int16_t ii = strlen(str) - 1;  
+  while(ii >= 0){
+    if(isspace(str[ii])){
+      str[ii] = '\0';
   }
-  
-  if(index_of(' ', pstr, &space_index)){
-    // if there's a space, null it
-    str[space_index] = '\0';
+    else{
+      break;
+    }
+    ii--;
   }
 }
 
@@ -4739,6 +4835,7 @@ void so2_convert_from_volts_to_ppb(float volts, float * converted_value, float *
   *temperature_compensated_value = (volts - so2_zero_volts - baseline_offset_voltage_at_temperature) * so2_slope_ppb_per_volt 
                                    / signal_scaling_factor_at_temperature 
                                    / signal_scaling_factor_at_altitude;
+                                   
   if(*temperature_compensated_value <= 0.0f){
     *temperature_compensated_value = 0.0f;
   }
