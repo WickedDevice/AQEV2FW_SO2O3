@@ -6193,10 +6193,12 @@ void getNetworkTime(void){
     tmElements_t tm;
     breakTime(t, tm);
     setTime(t);
-    if(init_rtc_ok){
-      DateTime datetime(t);
-      rtc.adjust(datetime);
-    }
+
+    selectSlot3();     
+    DateTime datetime(t);
+    rtc.adjust(datetime);
+    rtcClearOscillatorStopFlag();
+    selectNoSlot();
 
     memset(buf, 0, 48);
     snprintf((char *) buf, 47, 
