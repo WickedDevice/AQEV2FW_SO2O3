@@ -4117,6 +4117,22 @@ void trim_string(char * str){
   //Serial.println(str);  
 }
 
+
+void replace_nan_with_null(char * str){
+  if(strcmp(str, "nan") == 0){    
+    strcpy(str, "null");
+  }
+}
+
+void replace_character(char * str, char find_char, char replace_char){
+  uint16_t len = strlen(str);
+  for(uint16_t ii = 0; ii < len; ii++){
+    if(str[ii] == find_char){
+      str[ii] = replace_char;
+    }
+  }
+}
+
 // returns false if truncating the string to the field width
 // would result in alter the whole number part of the represented value
 // otherwise truncates the string to the field_width and returns true
@@ -4798,6 +4814,8 @@ boolean publishHeartbeat(){
   if(heartbeat_waveform_index >= NUM_HEARTBEAT_WAVEFORM_SAMPLES){
      heartbeat_waveform_index = 0;
   }
+
+  replace_character(scratch, '\'', '\"');
   
   strcat(MQTT_TOPIC_STRING, MQTT_TOPIC_PREFIX);
   strcat(MQTT_TOPIC_STRING, "heartbeat");    
@@ -4824,8 +4842,13 @@ boolean publishTemperature(){
   }
   safe_dtostrf(reported_temperature, -6, 2, converted_value_string, 16);
   safe_dtostrf(raw_temperature, -6, 2, raw_value_string, 16);
+  
   trim_string(converted_value_string);
   trim_string(raw_value_string);
+
+  replace_nan_with_null(converted_value_string);
+  replace_nan_with_null(raw_value_string);
+    
   snprintf(scratch, 511,
     "{"
     "\"serial-number\":\"%s\","
@@ -4836,6 +4859,8 @@ boolean publishTemperature(){
     "\"sensor-part-number\":\"SHT25\""
     "%s"
     "}", mqtt_client_id, converted_value_string, temperature_units, raw_value_string, temperature_units, gps_mqtt_string);
+
+  replace_character(scratch, '\'', '\"');
     
   strcat(MQTT_TOPIC_STRING, MQTT_TOPIC_PREFIX);
   strcat(MQTT_TOPIC_STRING, "temperature"); 
@@ -4856,8 +4881,13 @@ boolean publishHumidity(){
   
   safe_dtostrf(reported_humidity, -6, 2, converted_value_string, 16);
   safe_dtostrf(raw_humidity, -6, 2, raw_value_string, 16);
+  
   trim_string(converted_value_string);
   trim_string(raw_value_string);
+
+  replace_nan_with_null(converted_value_string);
+  replace_nan_with_null(raw_value_string);
+    
   snprintf(scratch, 511, 
     "{"
     "\"serial-number\":\"%s\","    
@@ -4868,6 +4898,8 @@ boolean publishHumidity(){
     "\"sensor-part-number\":\"SHT25\""
     "%s"
     "}", mqtt_client_id, converted_value_string, raw_value_string, gps_mqtt_string);  
+
+  replace_character(scratch, '\'', '\"');
 
   strcat(MQTT_TOPIC_STRING, MQTT_TOPIC_PREFIX);
   strcat(MQTT_TOPIC_STRING, "humidity");    
@@ -5118,9 +5150,15 @@ boolean publishSO2(){
   safe_dtostrf(so2_moving_average, -8, 6, raw_value_string, 16);
   safe_dtostrf(converted_value, -4, 2, converted_value_string, 16);
   safe_dtostrf(compensated_value, -4, 2, compensated_value_string, 16); 
+  
   trim_string(raw_value_string);
   trim_string(converted_value_string);
   trim_string(compensated_value_string);  
+
+  replace_nan_with_null(raw_value_string);
+  replace_nan_with_null(converted_value_string);
+  replace_nan_with_null(compensated_value_string);
+  
   snprintf(scratch, 511, 
     "{"
     "\"serial-number\":\"%s\","       
@@ -5137,6 +5175,8 @@ boolean publishSO2(){
     converted_value_string, 
     compensated_value_string,
     gps_mqtt_string);  
+
+  replace_character(scratch, '\'', '\"'); // replace single quotes with double quotes
   
   strcat(MQTT_TOPIC_STRING, MQTT_TOPIC_PREFIX);
   strcat(MQTT_TOPIC_STRING, "so2");    
@@ -5235,10 +5275,16 @@ boolean publishO3(){
   o3_ppb = compensated_value;  
   safe_dtostrf(o3_moving_average, -8, 6, raw_value_string, 16);
   safe_dtostrf(converted_value, -4, 2, converted_value_string, 16);
-  safe_dtostrf(compensated_value, -4, 2, compensated_value_string, 16);    
+  safe_dtostrf(compensated_value, -4, 2, compensated_value_string, 16);  
+    
   trim_string(raw_value_string);
   trim_string(converted_value_string);
   trim_string(compensated_value_string);    
+
+  replace_nan_with_null(raw_value_string);
+  replace_nan_with_null(converted_value_string);
+  replace_nan_with_null(compensated_value_string);
+  
   snprintf(scratch, 511, 
     "{"
     "\"serial-number\":\"%s\","      
@@ -5255,6 +5301,8 @@ boolean publishO3(){
     converted_value_string, 
     compensated_value_string,
     gps_mqtt_string);  
+
+  replace_character(scratch, '\'', '\"'); // replace single quotes with double quotes
 
   strcat(MQTT_TOPIC_STRING, MQTT_TOPIC_PREFIX);
   strcat(MQTT_TOPIC_STRING, "o3");    
