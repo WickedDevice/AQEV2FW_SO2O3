@@ -21,7 +21,7 @@
 // semantic versioning - see http://semver.org/
 #define AQEV2FW_MAJOR_VERSION 2
 #define AQEV2FW_MINOR_VERSION 0
-#define AQEV2FW_PATCH_VERSION 8
+#define AQEV2FW_PATCH_VERSION 9
 
 #define WLAN_SEC_AUTO (10) // made up to support auto-config of security
 
@@ -175,6 +175,7 @@ uint8_t mode = MODE_OPERATIONAL;
 #define EEPROM_NTP_SERVER_NAME    (EEPROM_USE_NTP - 32)           // 32-bytes for the NTP server to use
 #define EEPROM_NTP_TZ_OFFSET_HRS  (EEPROM_NTP_SERVER_NAME - 4)    // timezone offset as a floating point value
 #define EEPROM_MQTT_TOPIC_SUFFIX_ENABLED  (EEPROM_NTP_TZ_OFFSET_HRS - 1)    // a simple flag to indicate whether or not the topic suffix is enabled
+#define EEPROM_2_2_0_SAMPLING_UPD (EEPROM_MQTT_TOPIC_SUFFIX_ENABLED - 1)          // 1 means to sampling parameter default changes have been applied
 //  /\
 //   L Add values up here by subtracting offsets to previously added values
 //   * ... and make sure the addresses don't collide and start overlapping!
@@ -1133,6 +1134,27 @@ void initializeNewConfigSettings(void){
     configInject(command_buf);    
   }
   
+  val = eeprom_read_byte((const uint8_t *) EEPROM_2_2_0_SAMPLING_UPD);
+  if(val != 1){
+    if(!in_config_mode){
+      configInject("aqe\r");
+      in_config_mode = true;
+    }
+
+    configInject("softap enable\r");
+    configInject("sampling 5, 600, 60\r");
+    eeprom_write_byte((uint8_t *) EEPROM_2_2_0_SAMPLING_UPD, 1);
+
+    // check if ntpsrv is pool.ntp.org, and if so, switch it to 0.airqualityegg.pool.ntp.org
+    memset(command_buf, 0, 128);
+    eeprom_write_block(command_buf, (void *) EEPROM_NTP_SERVER_NAME, 32);
+    if(strcmp(command_buf, "pool.ntp.org") == 0){
+      configInject("ntpsrv 0.airqualityegg.pool.ntp.org\r");
+    }
+
+    recomputeAndStoreConfigChecksum();
+  }
+
   if(in_config_mode){
     configInject("exit\r");
   }
